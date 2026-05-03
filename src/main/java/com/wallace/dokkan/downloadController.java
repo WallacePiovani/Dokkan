@@ -54,15 +54,20 @@ public class downloadController {
         new Thread(() -> {
             try{
 
-                String pathYtDlp = new File("bin/yt-dlp.exe").getAbsolutePath();
-                String pathFfmpeg = new File("bin/ffmpeg.exe").getAbsolutePath();
+                //String pathYtDlp = new File("bin/yt-dlp.exe").getAbsolutePath(); -> Para testar em ambiente de desenvolvimento
+                //String pathFfmpeg = new File("bin/ffmpeg.exe").getAbsolutePath(); -> Para testar em ambiente de desenvolvimento
+
+                String pathYtDlp = new File("app/bin/yt-dlp.exe").getAbsolutePath();
+                String pathFfmpeg = new File("app/bin/ffmpeg.exe").getAbsolutePath();
 
                 ProcessBuilder pb = new ProcessBuilder(
                         pathYtDlp,
                         "-x",
                         "--audio-format", "mp3",
+                        "--audio-quality", "0",
+                        "-N", "8",
                         "--ffmpeg-location", pathFfmpeg,
-                        "-o", pasta + "//%(title)s.%(ext)s",
+                        "-o", pasta + "/%(title)s.%(ext)s",
                         url
                 );
 

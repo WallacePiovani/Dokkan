@@ -62,7 +62,7 @@
                 <archive>
                     <manifest>
                         <addClasspath>true</addClasspath>
-                        <mainClass>com.wallace.dokkan.main</mainClass>
+                        <mainClass>com.wallace.dokkan.Launcher</mainClass>
                     </manifest>
                 </archive>
             </configuration>
