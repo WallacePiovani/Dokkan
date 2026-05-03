@@ -53,10 +53,15 @@ public class downloadController {
         progressDownload.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
         new Thread(() -> {
             try{
+
+                String pathYtDlp = new File("bin/yt-dlp.exe").getAbsolutePath();
+                String pathFfmpeg = new File("bin/ffmpeg.exe").getAbsolutePath();
+
                 ProcessBuilder pb = new ProcessBuilder(
-                        "yt-dlp",
+                        pathYtDlp,
                         "-x",
                         "--audio-format", "mp3",
+                        "--ffmpeg-location", pathFfmpeg,
                         "-o", pasta + "//%(title)s.%(ext)s",
                         url
                 );
