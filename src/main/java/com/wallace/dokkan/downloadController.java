@@ -66,6 +66,9 @@ public class downloadController {
                         "--audio-format", "mp3",
                         "--audio-quality", "0",
                         "-N", "8",
+                        "--buffer-size","16k",
+                        "--throttled-rate", "100k",
+                        "--concurrent-fragments","8",
                         "--ffmpeg-location", pathFfmpeg,
                         "-o", pasta + "/%(title)s.%(ext)s",
                         url
