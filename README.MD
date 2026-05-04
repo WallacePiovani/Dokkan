@@ -20,7 +20,7 @@ O **Dokkan** é uma ferramenta desktop desenvolvida em **JavaFX** projetada para
 
 Para facilitar o uso, você pode baixar a versão mais recente na aba [Releases](https://github.com/WallacePiovani/Dokkan/releases).
 
-1. Baixe o instalador `.msi`.
+1. Baixe o instalador `.exe`.
 2. Siga as instruções de instalação do Windows.
 3. O programa criará um atalho na sua área de trabalho.
 
