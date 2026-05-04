@@ -52,6 +52,7 @@ Esta seção detalha o roadmap de desenvolvimento do Dokkan, focando em aprimora
 - [ ] **Status por Etapa**: Criar labels dinâmicos que informem se o app está "Baixando", "Convertendo" ou "Finalizando" o arquivo.
 
 ### Otimização e Performance
+- [ ] **Tamanho do vídeo**: Fazer correção para aumentar o tamanho do vídeo que é possível de baixar.
 - [ ] **Otimização de Finalização**: Refinar os parâmetros do FFmpeg para reduzir o tempo de encodamento após o término do download.
 - [ ] **Multi-threading Adaptativo**: Ajustar automaticamente o número de threads (`-N`) com base nos núcleos disponíveis no sistema (otimização para processadores high-end).
 ### Gestão de Downloads
