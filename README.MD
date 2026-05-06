@@ -52,6 +52,7 @@ Esta seção detalha o roadmap de desenvolvimento do Dokkan, focando em aprimora
 - [ ] **Status por Etapa**: Criar labels dinâmicos que informem se o app está "Baixando", "Convertendo" ou "Finalizando" o arquivo.
 
 ### Otimização e Performance
+- [x] **Tamanho do vídeo**: Fazer correção para aumentar o tamanho do vídeo que é possível de baixar.
 - [ ] **Otimização de Finalização**: Refinar os parâmetros do FFmpeg para reduzir o tempo de encodamento após o término do download.
 - [ ] **Multi-threading Adaptativo**: Ajustar automaticamente o número de threads (`-N`) com base nos núcleos disponíveis no sistema (otimização para processadores high-end).
 ### Gestão de Downloads
@@ -60,5 +61,5 @@ Esta seção detalha o roadmap de desenvolvimento do Dokkan, focando em aprimora
 
 ### Melhorias de UI/UX
 - [ ] **Dark Mode**: Adicionar um tema escuro para facilitar o uso durante sessões de RPG em ambientes com pouca luz.
-- [ ] **Seletor de Diretórios**: Implementar um `DirectoryChooser` nativo para que o usuário escolha a pasta de destino de forma visual.
+- [x] **Seletor de Diretórios**: Implementar um `DirectoryChooser` nativo para que o usuário escolha a pasta de destino de forma visual.
 - [ ] **Notificações do Sistema**: Adicionar alertas sonoros ou pop-ups de sistema ao concluir downloads em segundo plano.
