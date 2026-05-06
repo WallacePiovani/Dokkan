@@ -9,6 +9,7 @@ import javafx.scene.control.ProgressBar;
 import javafx.stage.DirectoryChooser;
 
 import java.io.File;
+import java.io.OutputStream;
 
 public class downloadController {
     @FXML
@@ -49,16 +50,26 @@ public class downloadController {
     }
 
     private void executarDownload(String url, String pasta){
-        lblStatus.setText("Iniciando download...");
+        lblStatus.setText("Baixando ...");
         progressDownload.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
         new Thread(() -> {
             try{
 
-                //String pathYtDlp = new File("bin/yt-dlp.exe").getAbsolutePath(); -> Para testar em ambiente de desenvolvimento
-                //String pathFfmpeg = new File("bin/ffmpeg.exe").getAbsolutePath(); -> Para testar em ambiente de desenvolvimento
-
                 String pathYtDlp = new File("app/bin/yt-dlp.exe").getAbsolutePath();
                 String pathFfmpeg = new File("app/bin/ffmpeg.exe").getAbsolutePath();
+
+                // para testes
+                /*ProcessBuilder pb = new ProcessBuilder(
+                        "yt-dlp",
+                        "-x",
+                        "--audio-format", "mp3",
+                        "--audio-quality", "0",
+                        "-N", "8",
+                        "--newline",
+                        "--progress",
+                        "-o", pasta + "/%(title)s.%(ext)s",
+                        url
+                );*/
 
                 ProcessBuilder pb = new ProcessBuilder(
                         pathYtDlp,
@@ -66,15 +77,27 @@ public class downloadController {
                         "--audio-format", "mp3",
                         "--audio-quality", "0",
                         "-N", "8",
-                        "--buffer-size","16k",
-                        "--throttled-rate", "100k",
-                        "--concurrent-fragments","8",
                         "--ffmpeg-location", pathFfmpeg,
+                        "--newline",
+                        "--progress",
+                        "--retries","infinite",
+                        "--fragment-retries","infinite",
                         "-o", pasta + "/%(title)s.%(ext)s",
                         url
                 );
-
+                pb.redirectErrorStream(true); //Caso haja, redireciona o erro para a saida padrão e consome o buffer.
                 Process p = pb.start();
+                p.getInputStream().transferTo(OutputStream.nullOutputStream());
+
+
+                try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(p.getInputStream()))) {
+                    String linha;
+                    while ((linha = reader.readLine()) != null) {
+                        System.out.println(linha);
+                    }
+                }
+
+
                 int exitCode = p.waitFor();
 
                 Platform.runLater(() ->{
@@ -83,6 +106,7 @@ public class downloadController {
                         progressDownload.setProgress(1.0);
                     } else {
                         lblStatus.setText("Erro ao baixar o audio.");
+                        System.out.checkError();
                         progressDownload.setProgress(0);
                     }
                 });
