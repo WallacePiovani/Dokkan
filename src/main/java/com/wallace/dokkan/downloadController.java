@@ -12,6 +12,31 @@ import java.io.File;
 import java.io.OutputStream;
 
 public class downloadController {
+
+    @FXML
+    public void initialize(){
+        UpdateService.verifyUpdate((novaVersao, downloadURL) ->{
+            javafx.application.Platform.runLater(()->{
+               mostrarAlertaNovoUpdate(novaVersao, downloadURL);
+            });
+        });
+    };
+
+    private void mostrarAlertaNovoUpdate(String versao, String url){
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+        alert.setTitle("Atualização Disponível");
+        alert.setHeaderText("Uma nova versão (" + versao + ") foi encontrada!");
+        alert.setContentText("Clique em OK para iniciar o download e instalação automática.");
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == javafx.scene.control.ButtonType.OK) {
+                System.out.println("Usuário aceitou o update para: " + url);
+                UpdateService.baixarEInstalar(url);
+            }
+        });
+    }
+
+
     @FXML
     private TextField txtUrl;
 
@@ -37,8 +62,6 @@ public class downloadController {
         if (pasta != null){
             executarDownload(url, pasta);
         }
-
-        //executarDownload(url,pasta);
 
     };
     private String selecionarPasta() {
@@ -69,7 +92,7 @@ public class downloadController {
                         "--progress",
                         "-o", pasta + "/%(title)s.%(ext)s",
                         url
-                );*/
+                ); */
 
                 ProcessBuilder pb = new ProcessBuilder(
                         pathYtDlp,
