@@ -4,7 +4,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.concurrent.CompletableFuture;
 
 public class UpdateService {
     private static final String LOCAL_VERSION = "0.9.0";
@@ -15,14 +14,24 @@ public class UpdateService {
     }
 
     public static void verifyUpdate (UpdateCallback callback){
-        CompletableFuture.runAsync(() -> {
+        System.out.println("debug - iniciando verifyUpdate");
+        Thread threadUpdate = new Thread(() -> {
            try{
-               HttpClient client = HttpClient.newHttpClient();
+               System.out.println("debug - dentro do thread async");
+
+               HttpClient client = HttpClient.newBuilder()
+                       .connectTimeout(java.time.Duration.ofSeconds(15))
+                       .build();
+
                HttpRequest request = HttpRequest.newBuilder()
                        .uri(URI.create(GITHUB_API_URL))
                        .header("Accept", "application/vnd.github.v3+json")
+                       .header("User-agent", "Java-HttpClient-Dokkan")
                        .build();
+
+               System.out.println("debug - enviando requisição ao github");
                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+               System.out.println("debug - resposta recebida status: " + response.statusCode());
 
                if (response.statusCode() == 200){
                    String body = response.body();
@@ -31,14 +40,25 @@ public class UpdateService {
                    String downloadUrl = extrairUrlExe(body);
 
                    if (!tagRemota.equals(LOCAL_VERSION)) {
+                       System.out.println("[DEBUG] Update necessário encontrado!");
                        callback.onUpdateFound(tagRemota, downloadUrl);
+                   } else {
+                       System.out.println("[DEBUG] Versões são iguais. Nada a fazer.");
                    }
+               }
+               else{
+                   System.out.println("debug -> github retornou erro: " + response.statusCode());
                }
            }
            catch (Exception e){
                System.err.println("Erro ao verificar updates: " + e.getMessage());
            }
         });
+
+        threadUpdate.setDaemon(true);
+        threadUpdate.setName("Thread-AutoUpdate");
+        threadUpdate.start();
+
     }
 
     private static String extrairValor(String json, String chave) {
@@ -77,28 +97,40 @@ public class UpdateService {
                 String tempDir = System.getProperty("java.io.tmpdir");
                 java.nio.file.Path pathExe = java.nio.file.Paths.get(tempDir, "DokkanUpdate.exe");
 
-                System.out.println("Iniciando download da atualização...");
-                java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
-                java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
-                        .uri(java.net.URI.create(urlDownload))
+                // 1. Limpa o arquivo antigo se existir para evitar conflitos
+                java.nio.file.Files.deleteIfExists(pathExe);
+
+                System.out.println("Baixando de: " + urlDownload);
+
+                java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
+                        .followRedirects(java.net.http.HttpClient.Redirect.ALWAYS) // MUITO IMPORTANTE: GitHub redireciona downloads
                         .build();
 
-                client.send(request, java.net.http.HttpResponse.BodyHandlers.ofFile(pathExe));
+                java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                        .uri(java.net.URI.create(urlDownload))
+                        .header("User-Agent", "Mozilla/5.0")
+                        .build();
 
-                System.out.println("Download concluído. Iniciando instalador...");
+                // 2. Espera o download concluir totalmente
+                java.net.http.HttpResponse<java.nio.file.Path> response =
+                        client.send(request, java.net.http.HttpResponse.BodyHandlers.ofFile(pathExe));
 
+                if (response.statusCode() == 200) {
+                    System.out.println("Download concluído com sucesso!");
 
-                new ProcessBuilder(pathExe.toString(), "/SILENT").start();
+                    // 3. Execução robusta no Windows
+                    // Usamos o comando 'cmd /c start' para garantir que o Windows trate como um executável
+                    ProcessBuilder pb = new ProcessBuilder("cmd", "/c", "start", "", pathExe.toString());
+                    pb.start();
 
-                javafx.application.Platform.runLater(() -> {
-                    System.exit(0);
-                });
+                    javafx.application.Platform.runLater(() -> System.exit(0));
+                } else {
+                    System.err.println("Erro no download. Status: " + response.statusCode());
+                }
 
             } catch (Exception e) {
                 System.err.println("Erro no processo de update: " + e.getMessage());
-                try {
-                    java.awt.Desktop.getDesktop().browse(new java.net.URI(urlDownload));
-                } catch (Exception ignored) {}
+                e.printStackTrace();
             }
         }).start();
     }
