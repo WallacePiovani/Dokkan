@@ -19,8 +19,6 @@ public class downloadController {
 
         try {
             System.out.println("[DEBUG] 0.1 Tentando chamar UpdateService...");
-
-            // Chamada direta sem lambda primeiro para testar o acesso à classe
             UpdateService.verifyUpdate((novaVersao, downloadURL) -> {
                 Platform.runLater(() -> {
                     System.out.println("[DEBUG] Callback recebido: " + novaVersao);
@@ -31,7 +29,6 @@ public class downloadController {
             System.out.println("[DEBUG] 0.2 Chamada ao UpdateService enviada.");
 
         } catch (Throwable t) {
-            // Usamos Throwable para pegar inclusive erros de carregamento de classe (Error)
             System.out.println("[DEBUG] ERRO FATAL AO CHAMAR SERVICE: " + t.getMessage());
             t.printStackTrace();
         }

@@ -1,12 +1,15 @@
 package com.wallace.dokkan;
 
+import javafx.application.Platform;
+
+import java.io.File;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class UpdateService {
-    private static final String LOCAL_VERSION = "0.9.0";
+    private static final String LOCAL_VERSION = "1.1.0";
     private static final String GITHUB_API_URL = "https://api.github.com/repos/WallacePiovani/Dokkan/releases/latest";
 
     public interface UpdateCallback {
@@ -95,15 +98,13 @@ public class UpdateService {
         new Thread(() -> {
             try {
                 String tempDir = System.getProperty("java.io.tmpdir");
-                java.nio.file.Path pathExe = java.nio.file.Paths.get(tempDir, "DokkanUpdate.exe");
+                String fileName = "DokkanUpdate_" + System.currentTimeMillis() + ".exe";
+                java.nio.file.Path pathExe = java.nio.file.Paths.get(tempDir, fileName);
 
-                // 1. Limpa o arquivo antigo se existir para evitar conflitos
-                java.nio.file.Files.deleteIfExists(pathExe);
-
-                System.out.println("Baixando de: " + urlDownload);
+                System.out.println("Iniciando download em: " + pathExe.toString());
 
                 java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
-                        .followRedirects(java.net.http.HttpClient.Redirect.ALWAYS) // MUITO IMPORTANTE: GitHub redireciona downloads
+                        .followRedirects(java.net.http.HttpClient.Redirect.ALWAYS)
                         .build();
 
                 java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
@@ -111,25 +112,33 @@ public class UpdateService {
                         .header("User-Agent", "Mozilla/5.0")
                         .build();
 
-                // 2. Espera o download concluir totalmente
                 java.net.http.HttpResponse<java.nio.file.Path> response =
                         client.send(request, java.net.http.HttpResponse.BodyHandlers.ofFile(pathExe));
 
                 if (response.statusCode() == 200) {
-                    System.out.println("Download concluído com sucesso!");
+                    System.out.println("Download concluído: " + pathExe.toString());
 
-                    // 3. Execução robusta no Windows
-                    // Usamos o comando 'cmd /c start' para garantir que o Windows trate como um executável
-                    ProcessBuilder pb = new ProcessBuilder("cmd", "/c", "start", "", pathExe.toString());
+                    ProcessBuilder pb = new ProcessBuilder("cmd", "/C", "start", "/b", "", pathExe.toAbsolutePath().toString());
+
+                    pb.directory(new File(tempDir));
                     pb.start();
 
-                    javafx.application.Platform.runLater(() -> System.exit(0));
+                    System.out.println("Instalador lançado. Fechando em 1 segundo...");
+
+                    Platform.runLater(() -> {
+                        try {
+                            Thread.sleep(500);
+                            System.exit(0);
+                        } catch (Exception e) {
+                            System.exit(0);
+                        }
+                    });
                 } else {
-                    System.err.println("Erro no download. Status: " + response.statusCode());
+                    System.err.println("Erro no download: " + response.statusCode());
                 }
 
             } catch (Exception e) {
-                System.err.println("Erro no processo de update: " + e.getMessage());
+                System.err.println("Erro crítico no update: " + e.getMessage());
                 e.printStackTrace();
             }
         }).start();
