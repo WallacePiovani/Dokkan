@@ -5,6 +5,10 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
@@ -27,5 +31,19 @@
         <Button mnemonicParsing="false" onAction="#onDownloadButtonClick" prefHeight="30.0" prefWidth="100.0" text="Baixar" />
         <ProgressBar fx:id="progressDownload" prefHeight="20.0" prefWidth="552.0" progress="0.0" />
       <Label fx:id="lblStatus" />
+      <GridPane>
+         <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="338.7538757324219" minWidth="0.0" prefWidth="143.5968780517578" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="424.8924560546875" minWidth="10.0" prefWidth="408.9031219482422" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+         </rowConstraints>
+         <children>
+            <Label fx:id="videoTitle" prefHeight="18.0" prefWidth="411.0" GridPane.columnIndex="1" />
+            <ImageView fx:id="imgThumbnail" fitHeight="70.0" fitWidth="142.0" pickOnBounds="true" preserveRatio="true" />
+         </children>
+      </GridPane>
     </children>
 </VBox>

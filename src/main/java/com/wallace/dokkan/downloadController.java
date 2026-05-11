@@ -6,19 +6,26 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.DirectoryChooser;
 
 import java.io.File;
-import java.io.OutputStream;
 
 public class downloadController {
 
     @FXML
     public void initialize() {
-        System.out.println("[DEBUG] 0. Controller inicializado!");
+        System.out.println("[DEBUG] Controller inicializado!");
+
+        txtUrl.textProperty().addListener((observable, oldValue, newValue) ->{
+            if(newValue.contains("youtu")){
+                buscarMetodos(newValue);
+            }
+        });
 
         try {
-            System.out.println("[DEBUG] 0.1 Tentando chamar UpdateService...");
+            System.out.println("[DEBUG] Tentando chamar UpdateService...");
             UpdateService.verifyUpdate((novaVersao, downloadURL) -> {
                 Platform.runLater(() -> {
                     System.out.println("[DEBUG] Callback recebido: " + novaVersao);
@@ -26,12 +33,45 @@ public class downloadController {
                 });
             });
 
-            System.out.println("[DEBUG] 0.2 Chamada ao UpdateService enviada.");
+            System.out.println("[DEBUG] Chamada ao UpdateService enviada.");
 
         } catch (Throwable t) {
             System.out.println("[DEBUG] ERRO FATAL AO CHAMAR SERVICE: " + t.getMessage());
             t.printStackTrace();
         }
+    }
+
+    private void buscarMetodos(String url){
+        new Thread(() ->{
+            try{
+                ProcessBuilder pb = new ProcessBuilder(
+                        "yt-dlp",
+                        "--get-title",
+                        "--get-thumbnail",
+                        url
+                );
+                Process p = pb.start();
+
+                try(java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(p.getInputStream()))){
+                    String titulo = reader.readLine();
+                    String thumbnail = reader.readLine();
+
+                    Platform.runLater(() ->{
+                        if(titulo != null) videoTitle.setText(titulo);
+                        if (thumbnail != null) {
+                            Image imagem = new Image(thumbnail,true);
+                            imgThumbnail.setImage(imagem);
+
+                        }
+                     });
+
+                }
+
+            }
+            catch (Exception e){
+                System.out.checkError();
+            }
+        }).start();
     }
 
     private void mostrarAlertaNovoUpdate(String versao, String url){
@@ -66,6 +106,12 @@ public class downloadController {
     private ProgressBar progressDownload;
 
     @FXML
+    private Label videoTitle;
+
+    @FXML
+    private ImageView imgThumbnail;
+
+    @FXML
     protected void onDownloadButtonClick(){
         String url = txtUrl.getText();
         String pasta = selecionarPasta();
@@ -76,6 +122,7 @@ public class downloadController {
         }
 
         if (pasta != null){
+
             executarDownload(url, pasta);
         }
 
@@ -94,11 +141,11 @@ public class downloadController {
         new Thread(() -> {
             try{
 
-                String pathYtDlp = new File("app/bin/yt-dlp.exe").getAbsolutePath();
-                String pathFfmpeg = new File("app/bin/ffmpeg.exe").getAbsolutePath();
+                //String pathYtDlp = new File("app/bin/yt-dlp.exe").getAbsolutePath();
+                //String pathFfmpeg = new File("app/bin/ffmpeg.exe").getAbsolutePath();
 
                 // para testes
-                /*ProcessBuilder pb = new ProcessBuilder(
+                ProcessBuilder pb = new ProcessBuilder(
                         "yt-dlp",
                         "-x",
                         "--audio-format", "mp3",
@@ -106,11 +153,12 @@ public class downloadController {
                         "-N", "8",
                         "--newline",
                         "--progress",
+                        "--get-title",
                         "-o", pasta + "/%(title)s.%(ext)s",
                         url
-                ); */
+                );
 
-                ProcessBuilder pb = new ProcessBuilder(
+                /*ProcessBuilder pb = new ProcessBuilder(
                         pathYtDlp,
                         "-x",
                         "--audio-format", "mp3",
@@ -123,19 +171,17 @@ public class downloadController {
                         "--fragment-retries","infinite",
                         "-o", pasta + "/%(title)s.%(ext)s",
                         url
-                );
+                );*/
                 pb.redirectErrorStream(true); //Caso haja, redireciona o erro para a saida padrão e consome o buffer.
                 Process p = pb.start();
-                //p.getInputStream().transferTo(OutputStream.nullOutputStream());
-
 
                 try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(p.getInputStream()))) {
+
                     String linha;
                     while ((linha = reader.readLine()) != null) {
                         System.out.println(linha);
                     }
                 }
-
 
                 int exitCode = p.waitFor();
 
