@@ -141,37 +141,40 @@ public class downloadController {
         new Thread(() -> {
             try{
 
-                //String pathYtDlp = new File("app/bin/yt-dlp.exe").getAbsolutePath();
-                //String pathFfmpeg = new File("app/bin/ffmpeg.exe").getAbsolutePath();
+                String pathYtDlp = new File("app/bin/yt-dlp.exe").getAbsolutePath();
+                String pathFfmpeg = new File("app/bin/ffmpeg.exe").getAbsolutePath();
 
                 // para testes
-                ProcessBuilder pb = new ProcessBuilder(
+                /*ProcessBuilder pb = new ProcessBuilder(
                         "yt-dlp",
                         "-x",
                         "--audio-format", "mp3",
                         "--audio-quality", "0",
+                        "--cookies-from-browser",
                         "-N", "8",
                         "--newline",
                         "--progress",
                         "--get-title",
                         "-o", pasta + "/%(title)s.%(ext)s",
                         url
-                );
+                );*/
 
-                /*ProcessBuilder pb = new ProcessBuilder(
+                ProcessBuilder pb = new ProcessBuilder(
                         pathYtDlp,
                         "-x",
                         "--audio-format", "mp3",
                         "--audio-quality", "0",
+                        "--cookies-from-browser",
                         "-N", "8",
                         "--ffmpeg-location", pathFfmpeg,
                         "--newline",
                         "--progress",
                         "--retries","infinite",
+                        "--get-title",
                         "--fragment-retries","infinite",
                         "-o", pasta + "/%(title)s.%(ext)s",
                         url
-                );*/
+                );
                 pb.redirectErrorStream(true); //Caso haja, redireciona o erro para a saida padrão e consome o buffer.
                 Process p = pb.start();
 
@@ -189,6 +192,16 @@ public class downloadController {
                     if (exitCode == 0) {
                         lblStatus.setText("Download finalizado com sucesso!");
                         progressDownload.setProgress(1.0);
+
+                        /*
+                        Para implementação futura.
+                        Vou definir melhor como vou implementar isso.
+
+                        txtUrl.setText("");
+                        videoTitle.setText("");
+                        imgThumbnail.setImage(null);
+                        */
+
                     } else {
                         lblStatus.setText("Erro ao baixar o audio.");
                         System.out.checkError();
@@ -197,6 +210,7 @@ public class downloadController {
                 });
 
                 System.out.println("Download finalizado!");
+
             }
         catch(Exception e){
                 e.printStackTrace();
