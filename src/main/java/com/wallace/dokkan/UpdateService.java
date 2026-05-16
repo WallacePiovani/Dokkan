@@ -9,7 +9,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class UpdateService {
-    private static final String LOCAL_VERSION = "1.1.1";
+    private static final String LOCAL_VERSION = "1.1.0";
     private static final String GITHUB_API_URL = "https://api.github.com/repos/WallacePiovani/Dokkan/releases/latest";
 
     public interface UpdateCallback {
